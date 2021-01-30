@@ -57,6 +57,23 @@ $(async function() {
     loginAndSubmitForm();
   });
 
+  $submitForm.on('submit', async function(evt) {
+    evt.preventDefault() // no page refresh
+
+    // grab required fields
+    let story = {
+      author: $('#author').val(),
+      title: $('#title').val(),
+      url: $('#url').val()
+    }
+    let user = {
+      username: localStorage.getItem('username'),
+      token: localStorage.getItem('token')
+    }
+
+    StoryList.addStory(user, story)
+  })
+
   /**
    * Log Out Functionality
    */
@@ -189,6 +206,7 @@ $(async function() {
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
+    $submitForm.slideToggle()
   }
 
   /* simple function to pull the hostname from a URL */
