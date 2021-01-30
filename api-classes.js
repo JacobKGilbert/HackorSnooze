@@ -60,7 +60,7 @@ class StoryList {
         url
       }
     })
-    generateStoryHTML(response.data.story)
+    return response.data.story
   }  
 }
 

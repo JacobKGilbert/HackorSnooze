@@ -64,14 +64,16 @@ $(async function() {
     let story = {
       author: $('#author').val(),
       title: $('#title').val(),
-      url: $('#url').val()
+      url: $('#url').val(),
     }
     let user = {
       username: localStorage.getItem('username'),
-      token: localStorage.getItem('token')
+      token: localStorage.getItem('token'),
     }
 
-    StoryList.addStory(user, story)
+    const newStory = await storyList.addStory(user, story)
+    const htmlStory = generateStoryHTML(newStory)
+    $allStoriesList.prepend(htmlStory)
   })
 
   /**
