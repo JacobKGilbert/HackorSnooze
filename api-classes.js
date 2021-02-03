@@ -61,7 +61,15 @@ class StoryList {
       }
     })
     return response.data.story
-  }  
+  }
+
+  async removeStory(storyId) {
+    const token = localStorage.token
+    const response = await axios.delete(`${BASE_URL}/stories/${storyId}`, {
+      token
+    })
+    return response.message
+  }
 }
 
 
@@ -83,7 +91,7 @@ class User {
     this.ownStories = [];
   }
 
-  /* Create and return a new user.
+  /** Create and return a new user.
    *
    * Makes POST request to API and returns newly-created user.
    *
@@ -110,8 +118,8 @@ class User {
     return newUser;
   }
 
-  /* Login in user and return user instance.
-
+  /** Login in user and return user instance.
+   *
    * - username: an existing user's username
    * - password: an existing user's password
    */
@@ -165,11 +173,15 @@ class User {
     existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
     return existingUser;
   }
+
+  /** Allow user to mark story as a favorite. */
+
+  async favorite(user, story) {
+
+  }
 }
 
-/**
- * Class to represent a single story.
- */
+/** Class to represent a single story. */
 
 class Story {
 

@@ -17,11 +17,9 @@ $(async function() {
 
   await checkIfLoggedIn();
 
-  /**
-   * Event listener for logging in.
+  /** Event listener for logging in.
    *  If successfully we will setup the user instance
    */
-
   $loginForm.on("submit", async function(evt) {
     evt.preventDefault(); // no page-refresh on submit
 
@@ -37,11 +35,9 @@ $(async function() {
     loginAndSubmitForm();
   });
 
-  /**
-   * Event listener for signing up.
+  /** Event listener for signing up.
    *  If successfully we will setup a new user instance
    */
-
   $createAccountForm.on("submit", async function(evt) {
     evt.preventDefault(); // no page refresh
 
@@ -57,6 +53,7 @@ $(async function() {
     loginAndSubmitForm();
   });
 
+  /** Event Handler for New Posts */
   $submitForm.on('submit', async function(evt) {
     evt.preventDefault() // no page refresh
 
@@ -74,12 +71,10 @@ $(async function() {
     const newStory = await storyList.addStory(user, story)
     const htmlStory = generateStoryHTML(newStory)
     $allStoriesList.prepend(htmlStory)
+    $submitForm.trigger('reset')
   })
 
-  /**
-   * Log Out Functionality
-   */
-
+  /** Log Out Functionality */
   $navLogOut.on("click", function() {
     // empty out local storage
     localStorage.clear();
@@ -87,10 +82,7 @@ $(async function() {
     location.reload();
   });
 
-  /**
-   * Event Handler for Clicking Login
-   */
-
+  /** Event Handler for Clicking Login */
   $navLogin.on("click", function() {
     // Show the Login and Create Account Forms
     $loginForm.slideToggle();
@@ -98,10 +90,30 @@ $(async function() {
     $allStoriesList.toggle();
   });
 
-  /**
-   * Event handler for Navigation to Homepage
-   */
+  /** Event Handler for Clicking Favorite Icon */
+  function handleFavClick(evt) {
+    
+  }
 
+  /** Event Handler for Clicking Edit Icon */
+  function handleEditClick(evt) {
+    
+  }
+
+  /** Event Handler for Clicking Delete Icon */
+  async function handleTrashClick(evt) {
+    const selectStoryLi = evt.target.closest('li')
+    const selectStoryId = selectStoryLi.id
+
+    if(window.confirm('Are you sure you want to delete this story?')) {
+      const msg = await storyList.removeStory(selectStoryId)
+      console.log(msg)
+      selectStoryLi.remove()
+      alert(msg)
+    }
+  }
+
+  /** Event handler for Navigation to Homepage */
   $("body").on("click", "#nav-all", async function() {
     hideElements();
     await generateStories();
@@ -112,7 +124,6 @@ $(async function() {
    * On page load, checks local storage to see if the user is already logged in.
    * Renders page information accordingly.
    */
-
   async function checkIfLoggedIn() {
     // let's see if we're logged in
     const token = localStorage.getItem("token");
@@ -123,16 +134,17 @@ $(async function() {
     //  this is designed to run once, on page load
     currentUser = await User.getLoggedInUser(token, username);
     await generateStories();
-
+    
     if (currentUser) {
       showNavForLoggedInUser();
+      showFavOptForUser()
+      showOptForOwnPost()
     }
   }
 
   /**
    * A rendering function to run to reset the forms and hide the login info
    */
-
   function loginAndSubmitForm() {
     // hide the forms for logging in and signing up
     $loginForm.hide();
@@ -144,7 +156,10 @@ $(async function() {
 
     // show the stories
     $allStoriesList.show();
-
+    
+    // Show User options
+    showFavOptForUser()
+    showOptForOwnPost()
     // update the navigation bar
     showNavForLoggedInUser();
   }
@@ -153,7 +168,6 @@ $(async function() {
    * A rendering function to call the StoryList.getStories static method,
    *  which will generate a storyListInstance. Then render it.
    */
-
   async function generateStories() {
     // get an instance of StoryList
     const storyListInstance = await StoryList.getStories();
@@ -167,15 +181,13 @@ $(async function() {
       const result = generateStoryHTML(story);
       $allStoriesList.append(result);
     }
+    
   }
 
-  /**
-   * A function to render HTML for an individual Story instance
-   */
-
+  /** Render HTML for an individual Story instance */
   function generateStoryHTML(story) {
     let hostName = getHostName(story.url);
-
+    
     // render story markup
     const storyMarkup = $(`
       <li id="${story.storyId}">
@@ -183,16 +195,18 @@ $(async function() {
           <strong>${story.title}</strong>
         </a>
         <small class="article-author">by ${story.author}</small>
-        <small class="article-hostname ${hostName}">(${hostName})</small>
+        <small class="article-hostname">(${hostName})</small>
+        <span class="favorite"><i class="far fa-star"></i></span>
+        <span class="edit"><i class="far fa-edit"></i></span>
+        <span class="delete"><i class="far fa-trash-alt"></i></span>
         <small class="article-username">posted by ${story.username}</small>
       </li>
-    `);
-
+    `)
+    
     return storyMarkup;
   }
 
-  /* hide all elements in elementsArr */
-
+  /** hide all elements in elementsArr */
   function hideElements() {
     const elementsArr = [
       $submitForm,
@@ -205,14 +219,36 @@ $(async function() {
     elementsArr.forEach($elem => $elem.hide());
   }
 
+  /** if logged in, show and hide relevent information */
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
-    $submitForm.slideToggle()
+    $submitForm.show()
   }
 
-  /* simple function to pull the hostname from a URL */
+  function showFavOptForUser() {
+    const $favIcons = $('.fa-star')
+    $favIcons.show()
+    $favIcons.on('click', handleFavClick)
+  }
 
+  function showOptForOwnPost() {
+    for (const story of storyList.stories) {
+      const storyUsername = story.username
+      if (currentUser.username === storyUsername) {
+        const $editIcon = $(`#${story.storyId}`).find('.fa-edit')
+        const $trashIcon = $(`#${story.storyId}`).find('.fa-trash-alt')
+        //Show icons on User's own posts
+        $editIcon.show()
+        $trashIcon.show()
+        //Add event handlers onto each icon
+        $editIcon.on('click', handleEditClick)
+        $trashIcon.on('click', handleTrashClick)
+      }
+    }
+  }
+
+  /** simple function to pull the hostname from a URL */
   function getHostName(url) {
     let hostName;
     if (url.indexOf("://") > -1) {
@@ -226,8 +262,7 @@ $(async function() {
     return hostName;
   }
 
-  /* sync current user information to localStorage */
-
+  /** sync current user information to localStorage */
   function syncCurrentUserToLocalStorage() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);
