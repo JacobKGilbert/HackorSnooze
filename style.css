@@ -158,6 +158,10 @@ form > hr {
   color: gold;
 }
 
+.fas {
+  color: gold
+}
+
 .fa-trash-alt:hover {
   color: crimson;
 }

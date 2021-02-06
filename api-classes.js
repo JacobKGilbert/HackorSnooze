@@ -64,11 +64,13 @@ class StoryList {
   }
 
   async removeStory(storyId) {
-    const token = localStorage.token
+    const token = localStorage.getItem('token')
     const response = await axios.delete(`${BASE_URL}/stories/${storyId}`, {
-      token
+      data:{
+        token
+      }
     })
-    return response.message
+    return response.data.message
   }
 }
 
@@ -176,8 +178,16 @@ class User {
 
   /** Allow user to mark story as a favorite. */
 
-  async favorite(user, story) {
+  async favorite(user, storyId) {
+    const username = user.username
+    const token = localStorage.getItem('token')
 
+    const response = await axios.post(`${BASE_URL}/users/${username}/favorites/${storyId}`, {
+        token
+    })
+
+    console.log(response.data.user.favorites)
+    return response.data.user.favorites
   }
 }
 

@@ -8,12 +8,14 @@ $(async function() {
   const $ownStories = $("#my-articles");
   const $navLogin = $("#nav-login");
   const $navLogOut = $("#nav-logout");
+  const $favArticles = $('#favorited-articles')
 
   // global storyList variable
   let storyList = null;
 
   // global currentUser variable
   let currentUser = null;
+  let favs = localStorage.favorites || []
 
   await checkIfLoggedIn();
 
@@ -91,8 +93,23 @@ $(async function() {
   });
 
   /** Event Handler for Clicking Favorite Icon */
-  function handleFavClick(evt) {
+  async function handleAddFavClick(evt) {
+    const selectStoryLi = evt.target.closest('li')
+    const selectStoryId = selectStoryLi.id
+
+    let user = {
+      username: localStorage.getItem('username'),
+      token: localStorage.getItem('token'),
+    }
     
+    const newFavsArr = await currentUser.favorite(user, selectStoryId)
+    const idArr = []
+
+    for (const story of newFavsArr) {
+      idArr.push(story.storyId)
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(idArr))
   }
 
   /** Event Handler for Clicking Edit Icon */
@@ -107,7 +124,6 @@ $(async function() {
 
     if(window.confirm('Are you sure you want to delete this story?')) {
       const msg = await storyList.removeStory(selectStoryId)
-      console.log(msg)
       selectStoryLi.remove()
       alert(msg)
     }
@@ -120,10 +136,7 @@ $(async function() {
     $allStoriesList.show();
   });
 
-  /**
-   * On page load, checks local storage to see if the user is already logged in.
-   * Renders page information accordingly.
-   */
+  /** On page load, checks local storage to see if the user is already logged in. Renders page information accordingly. */
   async function checkIfLoggedIn() {
     // let's see if we're logged in
     const token = localStorage.getItem("token");
@@ -142,9 +155,7 @@ $(async function() {
     }
   }
 
-  /**
-   * A rendering function to run to reset the forms and hide the login info
-   */
+  /** A rendering function to run to reset the forms and hide the login info */
   function loginAndSubmitForm() {
     // hide the forms for logging in and signing up
     $loginForm.hide();
@@ -179,14 +190,18 @@ $(async function() {
     // loop through all of our stories and generate HTML for them
     for (let story of storyList.stories) {
       const result = generateStoryHTML(story);
+      
+      if (favs.includes(story.storyId)) {
+        $favArticles.append(result)
+      }
       $allStoriesList.append(result);
     }
-    
   }
 
   /** Render HTML for an individual Story instance */
   function generateStoryHTML(story) {
     let hostName = getHostName(story.url);
+    let favIconStyle = favoritedStyle(story)
     
     // render story markup
     const storyMarkup = $(`
@@ -196,7 +211,7 @@ $(async function() {
         </a>
         <small class="article-author">by ${story.author}</small>
         <small class="article-hostname">(${hostName})</small>
-        <span class="favorite"><i class="far fa-star"></i></span>
+        <span class="favorite"><i class="${favIconStyle}"></i></span>
         <span class="edit"><i class="far fa-edit"></i></span>
         <span class="delete"><i class="far fa-trash-alt"></i></span>
         <small class="article-username">posted by ${story.username}</small>
@@ -224,12 +239,24 @@ $(async function() {
     $navLogin.hide();
     $navLogOut.show();
     $submitForm.show()
+    $favArticles.show()
   }
 
   function showFavOptForUser() {
-    const $favIcons = $('.fa-star')
+    const $favIcons = $('.far.fa-star')
     $favIcons.show()
-    $favIcons.on('click', handleFavClick)
+    $favIcons.on('click', handleAddFavClick)
+  }
+
+  function favoritedStyle(story) {
+    const favStyle = "fas fa-star"
+    const notfavStyle = "far fa-star"
+
+    if (favs.includes(story.storyId)) {
+      return favStyle
+    } else {
+      return notfavStyle
+    }
   }
 
   function showOptForOwnPost() {
@@ -267,6 +294,7 @@ $(async function() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);
       localStorage.setItem("username", currentUser.username);
+      localStorage.setItem("favorites", currentUser.favorites)
     }
   }
 });
