@@ -186,9 +186,8 @@ class User {
         token
     })
     const stories = response.data.user.favorites
-    console.log(stories);
+  
     for (const story of stories) {
-      console.log(story);
       favArr.push(story.storyId)
     }
 

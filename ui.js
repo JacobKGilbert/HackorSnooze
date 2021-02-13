@@ -15,7 +15,7 @@ $(async function() {
 
   // global currentUser variable
   let currentUser = null;
-  let favs = localStorage.favorites || []
+  let favs = JSON.parse(localStorage.getItem('favorites')) || []
 
   await checkIfLoggedIn();
 
@@ -144,6 +144,7 @@ $(async function() {
     await generateStories();
     
     if (currentUser) {
+      localStorage.setItem('favorites', JSON.stringify(currentUser.favorites))
       showNavForLoggedInUser();
       showFavOptForUser()
       showOptForOwnPost()
@@ -185,9 +186,10 @@ $(async function() {
     // loop through all of our stories and generate HTML for them
     for (let story of storyList.stories) {
       const result = generateStoryHTML(story);
+      const favCopy = result
       
       if (favs.includes(story.storyId)) {
-        $favArticles.append(result)
+        $favArticles.append(favCopy)
       }
       $allStoriesList.append(result);
     }
@@ -289,7 +291,7 @@ $(async function() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);
       localStorage.setItem("username", currentUser.username);
-      localStorage.setItem("favorites", currentUser.favorites)
+      localStorage.setItem("favorites", JSON.stringify(currentUser.favorites))
     }
   }
 });
