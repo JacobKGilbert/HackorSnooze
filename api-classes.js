@@ -47,6 +47,30 @@ class StoryList {
     // TODO - Implement this functions!
     // this function should return the newly created story so it can be used in
     // the script.js file where it will be appended to the DOM
+    const token = user.token
+    const author = newStory.author
+    const title = newStory.title
+    const url = newStory.url
+
+    const response = await axios.post(`${BASE_URL}/stories`, {
+      token,
+      story: {
+        author,
+        title,
+        url
+      }
+    })
+    return response.data.story
+  }
+
+  async removeStory(storyId) {
+    const token = localStorage.getItem('token')
+    const response = await axios.delete(`${BASE_URL}/stories/${storyId}`, {
+      data:{
+        token
+      }
+    })
+    return response.data.message
   }
 }
 
@@ -69,7 +93,7 @@ class User {
     this.ownStories = [];
   }
 
-  /* Create and return a new user.
+  /** Create and return a new user.
    *
    * Makes POST request to API and returns newly-created user.
    *
@@ -96,8 +120,8 @@ class User {
     return newUser;
   }
 
-  /* Login in user and return user instance.
-
+  /** Login in user and return user instance.
+   *
    * - username: an existing user's username
    * - password: an existing user's password
    */
@@ -151,11 +175,28 @@ class User {
     existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
     return existingUser;
   }
+
+  /** Allow user to mark story as a favorite. */
+
+  async favorite(user, storyId) {
+    const username = user.username
+    const token = user.token
+    const favArr = []
+    const response = await axios.post(`${BASE_URL}/users/${username}/favorites/${storyId}`, {
+        token
+    })
+    const stories = response.data.user.favorites
+    console.log(stories);
+    for (const story of stories) {
+      console.log(story);
+      favArr.push(story.storyId)
+    }
+
+    return favArr
+  }
 }
 
-/**
- * Class to represent a single story.
- */
+/** Class to represent a single story. */
 
 class Story {
 

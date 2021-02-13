@@ -145,19 +145,28 @@ form > hr {
   cursor: pointer;
 }
 
-.star,
-.trash-can,
-.pencil {
+.fa-star,
+.fa-trash-alt,
+.fa-edit {
   font-size: 0.75rem;
   margin: 0 2px;
   cursor: pointer;
+  display: none;
 }
 
-.trash-can:hover {
+.fa-star:hover {
+  color: gold;
+}
+
+.fas {
+  color: gold
+}
+
+.fa-trash-alt:hover {
   color: crimson;
 }
 
-.pencil:hover {
+.fa-edit:hover {
   color: darkblue;
 }
 
