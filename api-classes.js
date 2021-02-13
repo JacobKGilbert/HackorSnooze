@@ -180,14 +180,19 @@ class User {
 
   async favorite(user, storyId) {
     const username = user.username
-    const token = localStorage.getItem('token')
-
+    const token = user.token
+    const favArr = []
     const response = await axios.post(`${BASE_URL}/users/${username}/favorites/${storyId}`, {
         token
     })
+    const stories = response.data.user.favorites
+    console.log(stories);
+    for (const story of stories) {
+      console.log(story);
+      favArr.push(story.storyId)
+    }
 
-    console.log(response.data.user.favorites)
-    return response.data.user.favorites
+    return favArr
   }
 }
 

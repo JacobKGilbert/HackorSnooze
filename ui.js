@@ -103,13 +103,8 @@ $(async function() {
     }
     
     const newFavsArr = await currentUser.favorite(user, selectStoryId)
-    const idArr = []
 
-    for (const story of newFavsArr) {
-      idArr.push(story.storyId)
-    }
-
-    localStorage.setItem('favorites', JSON.stringify(idArr))
+    localStorage.setItem('favorites', newFavsArr)
   }
 
   /** Event Handler for Clicking Edit Icon */
