@@ -196,8 +196,9 @@ $(async function() {
   }
 
   /** Render HTML for an individual Story instance */
-  function generateStoryHTML(story) {
+  function generateStoryHTML(story) { 
     let hostName = getHostName(story.url);
+    //Configure which style of star is used.
     let favIconStyle = favoritedStyle(story)
     
     // render story markup
@@ -246,7 +247,9 @@ $(async function() {
   }
 
   function favoritedStyle(story) {
+    //Solid star
     const favStyle = "fas fa-star"
+    //Hollow Star
     const notfavStyle = "far fa-star"
 
     if (favs.includes(story.storyId)) {
