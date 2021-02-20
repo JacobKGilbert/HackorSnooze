@@ -128,6 +128,7 @@ $(async function() {
       selectStoryLi.remove()
       alert(msg)
     }
+    location.reload()
   }
 
   /** Event handler for Navigation to Homepage */
