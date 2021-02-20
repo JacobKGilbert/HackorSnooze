@@ -10,8 +10,7 @@ class StoryList {
     this.stories = stories;
   }
 
-  /**
-   * This method is designed to be called to generate a new StoryList.
+  /** This method is designed to be called to generate a new StoryList.
    *  It:
    *  - calls the API
    *  - builds an array of Story instances
@@ -75,8 +74,7 @@ class StoryList {
 }
 
 
-/**
- * The User class to primarily represent the current user.
+/** The User class to primarily represent the current user.
  *  There are helper methods to signup (create), login, and getLoggedInUser
  */
 
@@ -138,7 +136,15 @@ class User {
     const existingUser = new User(response.data.user);
 
     // instantiate Story instances for the user's favorites and ownStories
-    existingUser.favorites = response.data.user.favorites.map(s => new Story(s));
+    const stories = response.data.user.favorites
+    const favArr = []
+
+    for (const story of stories) {
+      favArr.push(story.storyId)
+    }
+
+    existingUser.favorites = JSON.stringify(favArr)
+    console.log('Login: ', existingUser.favorites)
     existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
 
     // attach the token to the newUser instance for convenience
@@ -171,7 +177,15 @@ class User {
     existingUser.loginToken = token;
 
     // instantiate Story instances for the user's favorites and ownStories
-    existingUser.favorites = response.data.user.favorites.map(s => new Story(s));
+    const stories = response.data.user.favorites
+    const favArr = []
+
+    for (const story of stories) {
+      favArr.push(story.storyId)
+    }
+
+    existingUser.favorites = JSON.stringify(favArr)
+    console.log('getLoggedInUser: ', existingUser.favorites)
     existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
     return existingUser;
   }
@@ -191,7 +205,7 @@ class User {
       favArr.push(story.storyId)
     }
 
-    return favArr
+    return JSON.stringify(favArr)
   }
 }
 
@@ -199,8 +213,7 @@ class User {
 
 class Story {
 
-  /**
-   * The constructor is designed to take an object for better readability / flexibility
+  /** The constructor is designed to take an object for better readability / flexibility
    * - storyObj: an object that has story properties in it
    */
 

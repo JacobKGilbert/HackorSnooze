@@ -15,7 +15,8 @@ $(async function() {
 
   // global currentUser variable
   let currentUser = null;
-  let favs = JSON.parse(localStorage.getItem('favorites')) || []
+  let favs = localStorage.getItem('favorites') || []
+  let parsedFavs = JSON.parse(favs)
 
   await checkIfLoggedIn();
 
@@ -144,7 +145,7 @@ $(async function() {
     await generateStories();
     
     if (currentUser) {
-      localStorage.setItem('favorites', JSON.stringify(currentUser.favorites))
+      localStorage.setItem('favorites', currentUser.favorites)
       showNavForLoggedInUser();
       showFavOptForUser()
       showOptForOwnPost()
@@ -171,9 +172,7 @@ $(async function() {
     showNavForLoggedInUser();
   }
 
-  /**
-   * A rendering function to call the StoryList.getStories static method,
-   *  which will generate a storyListInstance. Then render it.
+  /** A rendering function to call the StoryList.getStories static method, which will generate a storyListInstance. Then render it.
    */
   async function generateStories() {
     // get an instance of StoryList
@@ -186,9 +185,11 @@ $(async function() {
     // loop through all of our stories and generate HTML for them
     for (let story of storyList.stories) {
       const result = generateStoryHTML(story);
-      const favCopy = result
-      
-      if (favs.includes(story.storyId)) {
+      const favCopy = generateStoryHTML(story)
+
+      if (parsedFavs.includes(story.storyId)) {
+        console.log('generateStories Story: ', story.storyId);
+        
         $favArticles.append(favCopy)
       }
       $allStoriesList.append(result);
@@ -200,7 +201,7 @@ $(async function() {
     let hostName = getHostName(story.url);
     //Configure which style of star is used.
     let favIconStyle = favoritedStyle(story)
-    
+
     // render story markup
     const storyMarkup = $(`
       <li id="${story.storyId}">
@@ -242,6 +243,8 @@ $(async function() {
 
   function showFavOptForUser() {
     const $favIcons = $('.far.fa-star')
+    const $favedIcons = $('.fas.fa-star')
+    $favedIcons.show()
     $favIcons.show()
     $favIcons.on('click', handleAddFavClick)
   }
@@ -252,7 +255,7 @@ $(async function() {
     //Hollow Star
     const notfavStyle = "far fa-star"
 
-    if (favs.includes(story.storyId)) {
+    if (parsedFavs.includes(story.storyId)) {
       return favStyle
     } else {
       return notfavStyle
@@ -294,7 +297,7 @@ $(async function() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);
       localStorage.setItem("username", currentUser.username);
-      localStorage.setItem("favorites", JSON.stringify(currentUser.favorites))
+      localStorage.setItem("favorites", currentUser.favorites)
     }
   }
 });
