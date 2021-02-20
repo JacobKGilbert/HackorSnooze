@@ -80,15 +80,15 @@ class StoryList {
 
 class User {
   constructor(userObj) {
-    this.username = userObj.username;
-    this.name = userObj.name;
-    this.createdAt = userObj.createdAt;
-    this.updatedAt = userObj.updatedAt;
+    this.username = userObj.username
+    this.name = userObj.name
+    this.createdAt = userObj.createdAt
+    this.updatedAt = userObj.updatedAt
 
     // these are all set to defaults, not passed in by the constructor
-    this.loginToken = "";
-    this.favorites = [];
-    this.ownStories = [];
+    this.loginToken = ''
+    this.favorites = []
+    this.ownStories = []
   }
 
   /** Create and return a new user.
@@ -105,17 +105,17 @@ class User {
       user: {
         username,
         password,
-        name
-      }
-    });
+        name,
+      },
+    })
 
     // build a new User instance from the API response
-    const newUser = new User(response.data.user);
+    const newUser = new User(response.data.user)
 
     // attach the token to the newUser instance for convenience
-    newUser.loginToken = response.data.token;
+    newUser.loginToken = response.data.token
 
-    return newUser;
+    return newUser
   }
 
   /** Login in user and return user instance.
@@ -128,12 +128,12 @@ class User {
     const response = await axios.post(`${BASE_URL}/login`, {
       user: {
         username,
-        password
-      }
-    });
+        password,
+      },
+    })
 
     // build a new User instance from the API response
-    const existingUser = new User(response.data.user);
+    const existingUser = new User(response.data.user)
 
     // instantiate Story instances for the user's favorites and ownStories
     const stories = response.data.user.favorites
@@ -145,12 +145,14 @@ class User {
 
     existingUser.favorites = JSON.stringify(favArr)
     console.log('Login: ', existingUser.favorites)
-    existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
+    existingUser.ownStories = response.data.user.stories.map(
+      (s) => new Story(s)
+    )
 
     // attach the token to the newUser instance for convenience
-    existingUser.loginToken = response.data.token;
+    existingUser.loginToken = response.data.token
 
-    return existingUser;
+    return existingUser
   }
 
   /** Get user instance for the logged-in-user.
@@ -161,20 +163,20 @@ class User {
 
   static async getLoggedInUser(token, username) {
     // if we don't have user info, return null
-    if (!token || !username) return null;
+    if (!token || !username) return null
 
     // call the API
     const response = await axios.get(`${BASE_URL}/users/${username}`, {
       params: {
-        token
-      }
-    });
+        token,
+      },
+    })
 
     // instantiate the user from the API information
-    const existingUser = new User(response.data.user);
+    const existingUser = new User(response.data.user)
 
     // attach the token to the newUser instance for convenience
-    existingUser.loginToken = token;
+    existingUser.loginToken = token
 
     // instantiate Story instances for the user's favorites and ownStories
     const stories = response.data.user.favorites
@@ -186,8 +188,10 @@ class User {
 
     existingUser.favorites = JSON.stringify(favArr)
     console.log('getLoggedInUser: ', existingUser.favorites)
-    existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
-    return existingUser;
+    existingUser.ownStories = response.data.user.stories.map(
+      (s) => new Story(s)
+    )
+    return existingUser
   }
 
   /** Allow user to mark story as a favorite. */
@@ -196,11 +200,35 @@ class User {
     const username = user.username
     const token = user.token
     const favArr = []
-    const response = await axios.post(`${BASE_URL}/users/${username}/favorites/${storyId}`, {
-        token
-    })
+    const response = await axios.post(
+      `${BASE_URL}/users/${username}/favorites/${storyId}`,
+      {
+        token,
+      }
+    )
     const stories = response.data.user.favorites
-  
+
+    for (const story of stories) {
+      favArr.push(story.storyId)
+    }
+
+    return JSON.stringify(favArr)
+  }
+
+  async unFavorite(user, storyId) {
+    const username = user.username
+    const token = user.token
+    const favArr = []
+    const response = await axios.delete(
+      `${BASE_URL}/users/${username}/favorites/${storyId}`,
+      {
+        data: {
+          token,
+        }
+      }
+    )
+    const stories = response.data.user.favorites
+
     for (const story of stories) {
       favArr.push(story.storyId)
     }
