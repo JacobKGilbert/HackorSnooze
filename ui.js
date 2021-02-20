@@ -94,18 +94,23 @@ $(async function() {
   });
 
   /** Event Handler for Clicking Favorite Icon */
-  async function handleAddFavClick(evt) {
+  async function handleFavClick(evt) {
     const selectStoryLi = evt.target.closest('li')
     const selectStoryId = selectStoryLi.id
-
     let user = {
       username: localStorage.getItem('username'),
       token: localStorage.getItem('token'),
     }
-    
-    const newFavsArr = await currentUser.favorite(user, selectStoryId)
+    let newFavsArr
+
+    if (parsedFavs.includes(selectStoryId)) {
+      newFavsArr = await currentUser.unFavorite(user, selectStoryId)
+    } else {
+      newFavsArr = await currentUser.favorite(user, selectStoryId)
+    }
 
     localStorage.setItem('favorites', newFavsArr)
+    location.reload()
   }
 
   /** Event Handler for Clicking Edit Icon */
@@ -242,11 +247,9 @@ $(async function() {
   }
 
   function showFavOptForUser() {
-    const $favIcons = $('.far.fa-star')
-    const $favedIcons = $('.fas.fa-star')
-    $favedIcons.show()
+    const $favIcons = $('.fa-star')
     $favIcons.show()
-    $favIcons.on('click', handleAddFavClick)
+    $favIcons.on('click', handleFavClick)
   }
 
   function favoritedStyle(story) {
